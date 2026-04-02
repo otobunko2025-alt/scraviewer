@@ -15,7 +15,7 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// 🔥 Firebase設定（自分のに変更）
+// 🔥 Firebase設定
 const firebaseConfig = {
   apiKey: "ここ",
   authDomain: "ここ",
@@ -42,8 +42,9 @@ window.login = async function() {
   await signInWithPopup(auth, provider);
 };
 
-// 🔗 スプレッドシートJSON
+// 🔗 スプレッドシート
 const API_URL = "https://opensheet.elk.sh/1PZWVVDAFLz4HCfMr7CW8AKY4wykW0yWMNe-4eUvyiWY/Sheet1";
+
 // データ取得
 fetch(API_URL)
   .then(res => res.json())
@@ -53,7 +54,8 @@ fetch(API_URL)
       title: item["作品タイトル"],
       url: convertToEmbed(item["URL"]),
       description: item["説明"],
-      tag: item["タグ"]
+      tag: item["タグ"],
+      time: item["タイムスタンプ"]
     }));
 
     displayWorks();
@@ -71,27 +73,40 @@ function convertToEmbed(url) {
   return match ? `https://turbowarp.org/${match[1]}/embed` : "";
 }
 
-// 表示
+// 表示（検索・タグ・ランキング対応）
 async function displayWorks() {
   const container = document.getElementById("works");
   container.innerHTML = "";
 
   const search = document.getElementById("search").value.toLowerCase();
   const tag = document.getElementById("tagFilter").value;
+  const sortType = document.getElementById("sort").value;
+
+  let list = [];
 
   for (let work of worksData) {
     if (!work.url) continue;
-
     if (!work.title.toLowerCase().includes(search)) continue;
     if (tag && work.tag !== tag) continue;
 
-    // いいね取得
     const likeRef = doc(db, "likes", work.id);
     const likeSnap = await getDoc(likeRef);
     const likes = likeSnap.exists() ? likeSnap.data().count : 0;
 
-    // ユーザーいいね確認
+    list.push({ ...work, likes });
+  }
+
+  // 並び替え
+  if (sortType === "new") {
+    list.sort((a, b) => new Date(b.time) - new Date(a.time));
+  } else if (sortType === "popular") {
+    list.sort((a, b) => b.likes - a.likes);
+  }
+
+  // 表示
+  for (let work of list) {
     let liked = false;
+
     if (user) {
       const userLikeRef = doc(db, "userLikes", user.uid + "_" + work.id);
       const snap = await getDoc(userLikeRef);
@@ -107,7 +122,7 @@ async function displayWorks() {
       <p>${work.description}</p>
       <div class="tag">${work.tag}</div>
       <button onclick="like('${work.id}')" ${liked ? "disabled" : ""}>
-        ❤️ ${likes}
+        ❤️ ${work.likes}
       </button>
     `;
 
@@ -115,7 +130,7 @@ async function displayWorks() {
   }
 }
 
-// いいね処理（1人1回）
+// いいね（1人1回）
 window.like = async function(id) {
   if (!user) {
     alert("ログインしてください");
@@ -147,3 +162,4 @@ window.like = async function(id) {
 // イベント
 document.getElementById("search").addEventListener("input", displayWorks);
 document.getElementById("tagFilter").addEventListener("change", displayWorks);
+document.getElementById("sort").addEventListener("change", displayWorks);
