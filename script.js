@@ -17,7 +17,7 @@ import {
 
 const firebaseConfig = {
   apiKey: "ここ",
-  authDomain: "ここ",
+  authDomain: "otobunko2025-alt.github.io",
   projectId: "ここ",
 };
 
