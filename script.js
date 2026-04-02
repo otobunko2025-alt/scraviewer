@@ -50,7 +50,7 @@ async function getToken() {
 }
 
 // データ取得
-fetch("https://opensheet.elk.sh/スプレッドシートID/Sheet1")
+fetch("https://opensheet.elk.sh/1PZWVVDAFLz4HCfMr7CW8AKY4wykW0yWMNe-4eUvyiWY/Sheet1")
   .then(res => res.json())
   .then(data => {
     worksData = data.map(d => ({
