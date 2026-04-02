@@ -16,9 +16,9 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "ここ",
+  apiKey: "815845461056",
   authDomain: "otobunko2025-alt.github.io",
-  projectId: "ここ",
+  projectId: "scravieqer",
 };
 
 const app = initializeApp(firebaseConfig);
