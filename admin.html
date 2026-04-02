@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>管理者ページ</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>🛠 管理者ページ</h1>
+
+<button onclick="login()">ログイン</button>
+
+<h2>🚫 BANユーザー</h2>
+<input type="text" id="banUid" placeholder="UID入力">
+<button onclick="banUser()">BANする</button>
+
+<h2>📋 BAN一覧</h2>
+<div id="banList"></div>
+
+<script type="module" src="admin.js"></script>
+</body>
+</html>
