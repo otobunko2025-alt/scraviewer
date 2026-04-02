@@ -16,7 +16,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
- apiKey: "AIzaSyBIEK8aQCgBmkcCNOhhTuz-KFR3nC4AKsw",
+  apiKey: "AIzaSyBIEK8aQCgBmkcCNOhhTuz-KFR3nC4AKsw",
   authDomain: "scravieqer.firebaseapp.com",
   databaseURL: "https://scravieqer-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "scravieqer",
