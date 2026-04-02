@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Turbowarp作品まとめ</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>🚀 Turbowarp作品まとめ</h1>
+
+<!-- ログイン -->
+<button id="loginBtn" onclick="login()">Googleでログイン</button>
+
+<!-- 検索 -->
+<input type="text" id="search" placeholder="🔍 検索...">
+
+<!-- タグ -->
+<select id="tagFilter">
+  <option value="">すべて</option>
+  <option value="ゲーム">ゲーム</option>
+  <option value="アニメ">アニメ</option>
+  <option value="ツール">ツール</option>
+</select>
+
+<!-- 投稿 -->
+<a href="ここにGoogleフォームURL" target="_blank">
+  <button>➕ 投稿する</button>
+</a>
+
+<!-- 一覧 -->
+<div id="works"></div>
+
+<script type="module" src="script.js"></script>
+</body>
+</html>
