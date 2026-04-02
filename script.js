@@ -148,3 +148,9 @@ window.like = async function(id) {
 // イベント
 document.getElementById("search").addEventListener("input", displayWorks);
 document.getElementById("tagFilter").addEventListener("change", displayWorks);
+
+const firebaseConfig = {
+  apiKey: "...",
+  authDomain: "...",
+  projectId: "...",
+};
