@@ -16,9 +16,14 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBIEK8aQCgBmkcCNOhhTuz-KFR3nC4AKsw",
+ apiKey: "AIzaSyBIEK8aQCgBmkcCNOhhTuz-KFR3nC4AKsw",
   authDomain: "scravieqer.firebaseapp.com",
+  databaseURL: "https://scravieqer-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "scravieqer",
+  storageBucket: "scravieqer.firebasestorage.app",
+  messagingSenderId: "815845461056",
+  appId: "1:815845461056:web:eef5f338d745f08db5a3a5",
+  measurementId: "G-LGE6B6KP46"
 };
 
 const app = initializeApp(firebaseConfig);
