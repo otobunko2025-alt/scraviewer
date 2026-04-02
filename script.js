@@ -43,8 +43,7 @@ window.login = async function() {
 };
 
 // 🔗 スプレッドシートJSON
-const API_URL = "https://opensheet.elk.sh/スプレッドシートID/Sheet1";
-
+const API_URL = "https://opensheet.elk.sh/1PZWVVDAFLz4HCfMr7CW8AKY4wykW0yWMNe-4eUvyiWY/Sheet1";
 // データ取得
 fetch(API_URL)
   .then(res => res.json())
