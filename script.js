@@ -46,7 +46,7 @@ async function isBanned(uid) {
 
 // reCAPTCHA
 async function getToken() {
-  return await grecaptcha.execute("サイトキー", { action: "like" });
+  return await grecaptcha.execute("6LfLyKIsAAAAAFqX_PFaeCZtIBDZ3p-IRJ_tBtjp", { action: "like" });
 }
 
 // データ取得
