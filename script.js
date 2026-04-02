@@ -15,7 +15,6 @@ import {
   onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-// 🔥 Firebase設定
 const firebaseConfig = {
   apiKey: "ここ",
   authDomain: "ここ",
@@ -30,136 +29,90 @@ const provider = new GoogleAuthProvider();
 let user = null;
 let worksData = [];
 
-// ログイン状態
 onAuthStateChanged(auth, (u) => {
   user = u;
-  document.getElementById("loginBtn").textContent =
-    user ? "ログイン済み" : "Googleでログイン";
 });
 
 // ログイン
-window.login = async function() {
+window.login = async () => {
   await signInWithPopup(auth, provider);
 };
 
-// 🔗 スプレッドシート
-const API_URL = "https://opensheet.elk.sh/1PZWVVDAFLz4HCfMr7CW8AKY4wykW0yWMNe-4eUvyiWY/Sheet1";
+// BANチェック
+async function isBanned(uid) {
+  const snap = await getDoc(doc(db, "bannedUsers", uid));
+  return snap.exists();
+}
+
+// reCAPTCHA
+async function getToken() {
+  return await grecaptcha.execute("サイトキー", { action: "like" });
+}
 
 // データ取得
-fetch(API_URL)
+fetch("https://opensheet.elk.sh/スプレッドシートID/Sheet1")
   .then(res => res.json())
   .then(data => {
-    worksData = data.map(item => ({
-      id: extractId(item["URL"]),
-      title: item["作品タイトル"],
-      url: convertToEmbed(item["URL"]),
-      description: item["説明"],
-      tag: item["タグ"],
-      time: item["タイムスタンプ"]
+    worksData = data.map(d => ({
+      id: d["URL"].match(/\d+/)[0],
+      title: d["作品タイトル"],
+      url: `https://turbowarp.org/${d["URL"].match(/\d+/)[0]}/embed`,
+      desc: d["説明"],
+      tag: d["タグ"],
+      time: d["タイムスタンプ"]
     }));
-
-    displayWorks();
+    display();
   });
 
-// ID抽出
-function extractId(url) {
-  const match = url.match(/(\d+)/);
-  return match ? match[1] : null;
-}
-
-// embed変換
-function convertToEmbed(url) {
-  const match = url.match(/(\d+)/);
-  return match ? `https://turbowarp.org/${match[1]}/embed` : "";
-}
-
-// 表示（検索・タグ・ランキング対応）
-async function displayWorks() {
+async function display() {
   const container = document.getElementById("works");
   container.innerHTML = "";
 
-  const search = document.getElementById("search").value.toLowerCase();
-  const tag = document.getElementById("tagFilter").value;
-  const sortType = document.getElementById("sort").value;
-
   let list = [];
 
-  for (let work of worksData) {
-    if (!work.url) continue;
-    if (!work.title.toLowerCase().includes(search)) continue;
-    if (tag && work.tag !== tag) continue;
-
-    const likeRef = doc(db, "likes", work.id);
-    const likeSnap = await getDoc(likeRef);
-    const likes = likeSnap.exists() ? likeSnap.data().count : 0;
-
-    list.push({ ...work, likes });
+  for (let w of worksData) {
+    const snap = await getDoc(doc(db, "likes", w.id));
+    const likes = snap.exists() ? snap.data().count : 0;
+    list.push({ ...w, likes });
   }
 
-  // 並び替え
-  if (sortType === "new") {
-    list.sort((a, b) => new Date(b.time) - new Date(a.time));
-  } else if (sortType === "popular") {
-    list.sort((a, b) => b.likes - a.likes);
-  }
+  list.sort((a, b) => b.likes - a.likes);
 
-  // 表示
-  for (let work of list) {
-    let liked = false;
-
-    if (user) {
-      const userLikeRef = doc(db, "userLikes", user.uid + "_" + work.id);
-      const snap = await getDoc(userLikeRef);
-      liked = snap.exists();
-    }
-
+  for (let w of list) {
     const div = document.createElement("div");
     div.className = "card";
 
     div.innerHTML = `
-      <h3>${work.title}</h3>
-      <iframe src="${work.url}" allowfullscreen></iframe>
-      <p>${work.description}</p>
-      <div class="tag">${work.tag}</div>
-      <button onclick="like('${work.id}')" ${liked ? "disabled" : ""}>
-        ❤️ ${work.likes}
-      </button>
+      <h3>${w.title}</h3>
+      <iframe src="${w.url}"></iframe>
+      <p>${w.desc}</p>
+      <button onclick="like('${w.id}')">❤️ ${w.likes}</button>
     `;
 
     container.appendChild(div);
   }
 }
 
-// いいね（1人1回）
-window.like = async function(id) {
-  if (!user) {
-    alert("ログインしてください");
-    return;
+// いいね
+window.like = async (id) => {
+  if (!user) return alert("ログインして");
+
+  if (await isBanned(user.uid)) {
+    return alert("BANされています");
   }
 
-  const likeRef = doc(db, "likes", id);
-  const userLikeRef = doc(db, "userLikes", user.uid + "_" + id);
+  const token = await getToken();
 
-  const snap = await getDoc(userLikeRef);
-  if (snap.exists()) {
-    alert("すでにいいね済み");
-    return;
-  }
-
+  const ref = doc(db, "likes", id);
   try {
-    await updateDoc(likeRef, {
-      count: increment(1)
-    });
+    await updateDoc(ref, { count: increment(1) });
   } catch {
-    await setDoc(likeRef, { count: 1 });
+    await setDoc(ref, { count: 1 });
   }
 
-  await setDoc(userLikeRef, { liked: true });
+  await setDoc(doc(db, "userLikes", user.uid + "_" + id), {
+    token
+  });
 
-  displayWorks();
+  display();
 };
-
-// イベント
-document.getElementById("search").addEventListener("input", displayWorks);
-document.getElementById("tagFilter").addEventListener("change", displayWorks);
-document.getElementById("sort").addEventListener("change", displayWorks);
