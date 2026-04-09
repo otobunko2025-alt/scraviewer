@@ -50,9 +50,15 @@ getRedirectResult(auth)
 
 // 状態監視
 onAuthStateChanged(auth, (user) => {
+  const status = document.getElementById("status");
+
   if (user) {
     console.log("ログイン中:", user.uid);
+
+    status.textContent = "ログイン中: " + user.displayName;
   } else {
     console.log("未ログイン");
+
+    status.textContent = "未ログイン";
   }
 });
