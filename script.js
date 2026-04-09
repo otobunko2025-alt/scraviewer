@@ -25,7 +25,6 @@ const provider = new GoogleAuthProvider();
 window.login = () => {
   signInWithRedirect(auth, provider);
 };
-
 // =====================
 // リダイレクト後の処理
 // =====================
