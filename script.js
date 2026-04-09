@@ -45,9 +45,9 @@ window.login = async () => {
     console.log("ログイン成功:", result.user);
     alert("ログイン成功");
   } catch (e) {
-    console.error("ログイン失敗:", e);
+    console.error(e);
 
-    // 🔥 エラー内容を全部出す
+    // 👇 これ重要
     alert(e.code + "\n" + e.message);
   }
 };
