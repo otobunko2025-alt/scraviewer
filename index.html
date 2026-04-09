@@ -11,7 +11,18 @@
 <body>
 
 <h1>スクラッチの作品を保存する</h1>
-<button onclick="login()">Googleログイン</button>
+  <!-- 🔥 ログイン状態表示 -->
+  <p id="status">確認中...</p>
+
+  <!-- 🔥 ログインボタン -->
+  <button onclick="login()">Googleログイン</button>
+
+  <!-- 他のコンテンツ -->
+  <div id="works"></div>
+
+  <!-- 🔥 scriptは一番下 -->
+  <script type="module" src="script.js"></script>
+
 
 <input type="text" id="search" placeholder="🔍 検索...">
 
