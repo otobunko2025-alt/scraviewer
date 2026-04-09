@@ -17,10 +17,10 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 // ログイン
+// ✅ これにする
 window.login = () => {
   signInWithRedirect(auth, provider);
 };
-
 // 状態確認
 onAuthStateChanged(auth, (user) => {
   const status = document.getElementById("status");
