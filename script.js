@@ -1,3 +1,5 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+
 import {
   getAuth,
   signInWithRedirect,
@@ -7,7 +9,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSy...",
+  apiKey: "AIzaSyBIEK8aQCgBmkcCNOhhTuz-KFR3nC4AKsw",
   authDomain: "scravieqer.firebaseapp.com",
   projectId: "scravieqer"
 };
@@ -17,11 +19,22 @@ const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 // ログイン
-// ✅ これにする
 window.login = () => {
   signInWithRedirect(auth, provider);
 };
-// 状態確認
+
+// リダイレクト後
+getRedirectResult(auth)
+  .then((result) => {
+    if (result) {
+      alert("ログイン成功");
+    }
+  })
+  .catch((e) => {
+    alert(e.code);
+  });
+
+// 状態表示
 onAuthStateChanged(auth, (user) => {
   const status = document.getElementById("status");
 
