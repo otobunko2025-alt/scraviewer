@@ -16,18 +16,18 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
+
+// 🔥 ここは1回だけ
 const auth = getAuth(app);
+
 const provider = new GoogleAuthProvider();
 
-// =====================
-// ログインボタン
-// =====================
+// ログイン
 window.login = () => {
   signInWithRedirect(auth, provider);
 };
-// =====================
-// リダイレクト後の処理
-// =====================
+
+// リダイレクト後
 getRedirectResult(auth)
   .then((result) => {
     if (result) {
@@ -36,13 +36,11 @@ getRedirectResult(auth)
     }
   })
   .catch((e) => {
-    console.error("ログインエラー:", e);
+    console.error(e);
     alert(e.code + "\n" + e.message);
   });
 
-// =====================
-// ログイン状態監視
-// =====================
+// 状態監視
 onAuthStateChanged(auth, (user) => {
   if (user) {
     console.log("ログイン中:", user.uid);
