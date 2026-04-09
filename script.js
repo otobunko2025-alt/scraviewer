@@ -1,29 +1,34 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import {
-  getFirestore,
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  increment
-} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 import {
   getAuth,
   signInWithRedirect,
   getRedirectResult,
-  GoogleAuthProvider
+  GoogleAuthProvider,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-const auth = getAuth();
+// Firebase設定
+const firebaseConfig = {
+  apiKey: "AIzaSyBIEK8aQCgBmkcCNOhhTuz-KFR3nC4AKsw",
+  authDomain: "scravieqer.firebaseapp.com",
+  projectId: "scravieqer"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// ログイン（リダイレクト）
+// =====================
+// ログインボタン
+// =====================
 window.login = () => {
   signInWithRedirect(auth, provider);
 };
 
-// 戻ってきたとき
+// =====================
+// リダイレクト後の処理
+// =====================
 getRedirectResult(auth)
   .then((result) => {
     if (result) {
@@ -32,122 +37,17 @@ getRedirectResult(auth)
     }
   })
   .catch((e) => {
-    console.error(e);
+    console.error("ログインエラー:", e);
     alert(e.code + "\n" + e.message);
   });
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBIEK8aQCgBmkcCNOhhTuz-KFR3nC4AKsw",
-  authDomain: "scravieqer.firebaseapp.com",
-  databaseURL: "https://scravieqer-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "scravieqer",
-  storageBucket: "scravieqer.firebasestorage.app",
-  messagingSenderId: "815845461056",
-  appId: "1:815845461056:web:eef5f338d745f08db5a3a5",
-  measurementId: "G-LGE6B6KP46"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
-
-let user = null;
-let worksData = [];
-
-onAuthStateChanged(auth, (u) => {
-  user = u;
+// =====================
+// ログイン状態監視
+// =====================
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    console.log("ログイン中:", user.uid);
+  } else {
+    console.log("未ログイン");
+  }
 });
-
-// ログイン
-window.login = async () => {
-  try {
-    const result = await signInWithPopup(auth, provider);
-    console.log("ログイン成功:", result.user);
-    alert("ログイン成功");
-  } catch (e) {
-    console.error(e);
-
-    // 👇 これ重要
-    alert(e.code + "\n" + e.message);
-  }
-};
-
-// BANチェック
-async function isBanned(uid) {
-  const snap = await getDoc(doc(db, "bannedUsers", uid));
-  return snap.exists();
-}
-
-// reCAPTCHA
-async function getToken() {
-  return await grecaptcha.execute("6LfLyKIsAAAAAFqX_PFaeCZtIBDZ3p-IRJ_tBtjp", { action: "like" });
-}
-
-// データ取得
-fetch("https://opensheet.elk.sh/1PZWVVDAFLz4HCfMr7CW8AKY4wykW0yWMNe-4eUvyiWY/sheet1")
-  .then(res => res.json())
-  .then(data => {
-    worksData = data.map(d => ({
-      id: d["URL"].match(/\d+/)[0],
-      title: d["作品タイトル"],
-      url: `https://turbowarp.org/${d["URL"].match(/\d+/)[0]}/embed`,
-      desc: d["説明"],
-      tag: d["タグ"],
-      time: d["タイムスタンプ"]
-    }));
-    display();
-  });
-
-async function display() {
-  const container = document.getElementById("works");
-  container.innerHTML = "";
-
-  let list = [];
-
-  for (let w of worksData) {
-    const snap = await getDoc(doc(db, "likes", w.id));
-    const likes = snap.exists() ? snap.data().count : 0;
-    list.push({ ...w, likes });
-  }
-
-  list.sort((a, b) => b.likes - a.likes);
-
-  for (let w of list) {
-    const div = document.createElement("div");
-    div.className = "card";
-
-    div.innerHTML = `
-      <h3>${w.title}</h3>
-      <iframe src="${w.url}"></iframe>
-      <p>${w.desc}</p>
-      <button onclick="like('${w.id}')">❤️ ${w.likes}</button>
-    `;
-
-    container.appendChild(div);
-  }
-}
-
-// いいね
-window.like = async (id) => {
-  if (!user) return alert("ログインして");
-
-  if (await isBanned(user.uid)) {
-    return alert("BANされています");
-  }
-
-  const token = await getToken();
-
-  const ref = doc(db, "likes", id);
-  try {
-    await updateDoc(ref, { count: increment(1) });
-  } catch {
-    await setDoc(ref, { count: 1 });
-  }
-
-  await setDoc(doc(db, "userLikes", user.uid + "_" + id), {
-    token
-  });
-
-  display();
-};
