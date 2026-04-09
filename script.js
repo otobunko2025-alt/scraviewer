@@ -10,10 +10,31 @@ import {
 
 import {
   getAuth,
-  signInWithPopup,
-  GoogleAuthProvider,
-  onAuthStateChanged
+  signInWithRedirect,
+  getRedirectResult,
+  GoogleAuthProvider
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+const auth = getAuth();
+const provider = new GoogleAuthProvider();
+
+// ログイン（リダイレクト）
+window.login = () => {
+  signInWithRedirect(auth, provider);
+};
+
+// 戻ってきたとき
+getRedirectResult(auth)
+  .then((result) => {
+    if (result) {
+      console.log("ログイン成功:", result.user);
+      alert("ログイン成功！");
+    }
+  })
+  .catch((e) => {
+    console.error(e);
+    alert(e.code + "\n" + e.message);
+  });
 
 const firebaseConfig = {
   apiKey: "AIzaSyBIEK8aQCgBmkcCNOhhTuz-KFR3nC4AKsw",
