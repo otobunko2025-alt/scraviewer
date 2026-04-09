@@ -40,7 +40,16 @@ onAuthStateChanged(auth, (u) => {
 
 // ログイン
 window.login = async () => {
-  await signInWithPopup(auth, provider);
+  try {
+    const result = await signInWithPopup(auth, provider);
+    console.log("ログイン成功:", result.user);
+    alert("ログイン成功");
+  } catch (e) {
+    console.error("ログイン失敗:", e);
+
+    // 🔥 エラー内容を全部出す
+    alert(e.code + "\n" + e.message);
+  }
 };
 
 // BANチェック
