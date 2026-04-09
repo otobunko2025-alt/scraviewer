@@ -18,7 +18,15 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // 🔥 ここは1回だけ
-const auth = getAuth(app);
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const auth = getAuth(app);  // ← これを追加
+const provider = new GoogleAuthProvider();
 
 const provider = new GoogleAuthProvider();
 
